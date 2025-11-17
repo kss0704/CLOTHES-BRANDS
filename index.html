@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkyCloth — Fashion Store</title>
+<meta name="description" content="SkyCloth — Responsive clothes shopping demo (single file). Men, Women, Kids categories, cart, login, signup." />
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+<style>
+  /* ====== VARIABLES ====== */
+  :root{
+    --sky:#e8f6ff;
+    --blue:#1e88e5;
+    --deep-blue:#1565c0;
+    --muted:#6b7280;
+    --bg:#ffffff;
+    --card:#f7fbff;
+    --glass: rgba(255,255,255,0.7);
+    --radius:14px;
+    --shadow: 0 6px 20px rgba(16,24,40,0.08);
+    --accent: linear-gradient(135deg,var(--sky), #ffffff);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#12263a;background:var(--bg);-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  img{max-width:100%;display:block}
+
+  /* ====== HEADER ====== */
+  header{
+    position:sticky;top:0;z-index:1200;
+    backdrop-filter: blur(6px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.65));
+    border-bottom:1px solid rgba(30,136,229,0.06);
+  }
+  .nav {
+    max-width:1200px;margin:0 auto;display:flex;gap:16px;align-items:center;padding:14px;
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px;font-weight:700;font-size:20px;color:var(--deep-blue);
+  }
+  .logo{
+    height:42px;width:42px;border-radius:10px;background:var(--sky);display:grid;place-items:center;color:var(--deep-blue);font-weight:800;font-size:18px;box-shadow:var(--shadow);
+  }
+  nav.primary{margin-left:20px;display:flex;gap:12px;flex:1;align-items:center}
+  nav.primary a{padding:8px 12px;border-radius:10px;text-decoration:none;color:#123; font-weight:600}
+  nav.primary a:hover{background:rgba(30,136,229,0.06);color:var(--blue)}
+  .search{
+    display:flex;align-items:center;background:#fff;padding:8px;border-radius:12px;border:1px solid rgba(16,24,40,0.06);box-shadow:0 2px 8px rgba(16,24,40,0.03);flex:1;max-width:420px;
+  }
+  .search input{border:0;outline:none;padding:8px;font-size:14px;width:100%;background:transparent}
+  .actions{display:flex;gap:10px;align-items:center}
+  .btn{
+    background:var(--blue);color:white;padding:9px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(30,136,229,0.12)
+  }
+  .ghost{background:transparent;border:1px solid rgba(16,24,40,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+
+  /* ====== HERO ====== */
+  .hero{
+    max-width:1200px;margin:20px auto;padding:18px;border-radius:16px;background:var(--accent);display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:center;
+  }
+  .hero-left h1{font-size:32px;margin:0;color:var(--deep-blue)}
+  .hero-left p{margin-top:12px;color:var(--muted);line-height:1.6}
+  .hero-cta{margin-top:18px;display:flex;gap:12px;align-items:center}
+  .hero-cta .btn{padding:12px 18px}
+  .hero-right{
+    border-radius:12px;overflow:hidden;height:260px;background:linear-gradient(180deg,#cfeeff,#ffffff);display:grid;place-items:center;
+  }
+  .hero-right img{height:100%;width:100%;object-fit:cover}
+
+  /* ====== SECTIONS ====== */
+  .container{max-width:1200px;margin:28px auto;padding:12px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .section-head h2{margin:0;color:var(--deep-blue)}
+  .filters{display:flex;gap:10px;align-items:center}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{padding:8px 12px;border-radius:999px;background:var(--card);cursor:pointer;border:1px solid rgba(16,24,40,0.04);font-weight:600}
+  .chip.active{background:var(--blue);color:white;box-shadow:0 6px 16px rgba(30,136,229,0.12)}
+
+  /* ====== GRID ====== */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .card{background:linear-gradient(180deg,#fff,#fbfdff);border-radius:12px;padding:12px;border:1px solid rgba(16,24,40,0.04);box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
+  .card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(16,24,40,0.08)}
+  .thumb{height:220px;border-radius:10px;overflow:hidden;background:#eef7ff;display:grid;place-items:center}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .meta{padding-top:10px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .title{font-weight:700;color:#0f1724;font-size:15px}
+  .priceRow{display:flex;align-items:center;justify-content:space-between}
+  .price{font-weight:800;color:var(--deep-blue)}
+  .rating{background:linear-gradient(90deg,#fff,#f8fffd);padding:4px 8px;border-radius:999px;font-weight:700;color:#226;display:inline-flex;align-items:center;gap:6px}
+  .sizes{display:flex;gap:6px;flex-wrap:wrap}
+  .size{border:1px dashed rgba(16,24,40,0.08);padding:6px 8px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer}
+  .footer-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .btn-sm{padding:8px 10px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+  .outline{background:transparent;border:1px solid rgba(16,24,40,0.06)}
+  .add{background:var(--deep-blue);color:#fff}
+
+  /* ====== CART SIDEBAR / PAGE ====== */
+  .cart-panel{
+    position:fixed;right:18px;top:80px;width:360px;max-height:70vh;background:#fff;border-radius:12px;padding:14px;box-shadow:0 18px 40px rgba(16,24,40,0.16);z-index:1400;overflow:auto;display:none;
+  }
+  .cart-item{display:flex;gap:12px;align-items:center;padding:10px;border-bottom:1px solid rgba(16,24,40,0.04)}
+  .cart-item img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+  .cart-item .info{flex:1}
+  .cart-footer{padding-top:12px;display:flex;justify-content:space-between;align-items:center;font-weight:800}
+
+  /* ====== MODAL ====== */
+  .overlay{position:fixed;inset:0;background:rgba(3,7,18,0.45);display:none;align-items:center;justify-content:center;z-index:1500}
+  .modal{background:#fff;padding:18px;border-radius:12px;max-width:520px;width:100%;box-shadow:0 30px 80px rgba(16,24,40,0.3)}
+  .modal h3{margin:0 0 12px 0;color:var(--deep-blue)}
+  .form-row{display:flex;gap:10px;margin-bottom:10px}
+  input[type="text"], input[type="email"], input[type="password"], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(16,24,40,0.06);outline:none}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* ====== RESPONSIVE ====== */
+  @media(max-width:1000px){
+    .grid{grid-template-columns:repeat(3,1fr)}
+    .hero{grid-template-columns:1fr;gap:12px}
+    .hero-right{height:220px}
+  }
+  @media(max-width:760px){
+    .nav{padding:10px}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    nav.primary{display:none}
+    .search{max-width:unset}
+    .hero-right{height:180px}
+    .cart-panel{display:none}
+  }
+  @media(max-width:420px){
+    .grid{grid-template-columns:1fr}
+    .hero-left h1{font-size:24px}
+  }
+
+  /* tiny helpers */
+  .text-muted{color:var(--muted)}
+  .center{display:grid;place-items:center}
+  .rating svg{height:14px;width:14px}
+  .badge{background:var(--blue);color:#fff;padding:4px 8px;border-radius:999px;font-weight:800;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="nav" role="navigation" aria-label="Main Navigation">
+    <div class="brand" onclick="goHome()" style="cursor:pointer">
+      <div class="logo">SC</div>
+      <div>
+        <div style="font-size:14px;color:var(--muted)">SkyCloth</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Fashion • Comfort • You</div>
+      </div>
+    </div>
+
+    <nav class="primary" aria-label="Category Links">
+      <a href="#" data-cat="all" onclick="filterCategory('all')">All</a>
+      <a href="#" data-cat="men" onclick="filterCategory('men')">Men</a>
+      <a href="#" data-cat="women" onclick="filterCategory('women')">Women</a>
+      <a href="#" data-cat="kids" onclick="filterCategory('kids')">Kids</a>
+      <a href="#products" onclick="scrollToProducts()">New Arrivals</a>
+    </nav>
+
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="search" role="search" aria-label="Site Search">
+        <svg style="margin-right:6px" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="q" placeholder="Search for clothes, brands, sizes..." aria-label="Search" oninput="searchProducts(this.value)">
+      </div>
+      <div class="actions">
+        <button class="ghost" onclick="openLogin()">Login</button>
+        <button class="btn" onclick="toggleCart()" aria-haspopup="true" aria-expanded="false">Cart (<span id="cart-count">0</span>)</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" role="banner">
+  <div class="hero-left">
+    <h1>Discover the latest fashion — Comfortable, stylish & affordable</h1>
+    <p>Shop curated collections for Men, Women and Kids. Trend-driven styles inspired by street, office, and festival looks. Free returns • Fast shipping • Secure checkout.</p>
+    <div class="hero-cta">
+      <button class="btn" onclick="scrollToProducts()">Shop Now</button>
+      <button class="ghost" onclick="filterCategory('women')">Women's Picks</button>
+      <div style="margin-left:auto" class="small text-muted">Trusted by thousands • 24/7 support</div>
+    </div>
+  </div>
+  <div class="hero-right center">
+    <picture>
+      <source media="(max-width:760px)" srcset="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.0.3&s=0a7b9b4b5cc9b26bd29b4f2344e3f952">
+      <img src="https://images.unsplash.com/photo-1520975917609-7f6c6b5d0b6f?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=618ef891f2b8f3f6a0ef42a8c0b5b4a2" alt="Fashion banner">
+    </picture>
+  </div>
+</section>
+
+<!-- DETAILS -->
+<div class="container">
+  <section aria-labelledby="about">
+    <div class="section-head">
+      <h2 id="about">About SkyCloth</h2>
+      <div class="text-muted">White & sky-blue theme • Responsive • Frontend-only demo</div>
+    </div>
+    <p class="text-muted">SkyCloth brings a thoughtfully curated selection of clothing — from everyday casual wear to refined formal attire and festive ethnic collections. Our collections include premium materials, accurate sizing guides, and a wide range of price points to meet your needs.</p>
+    <p class="text-muted" style="margin-top:8px">We cater to all ages: Men (18–60+), Women (15–60+), and Kids (2–14). Sizes are available from XS to XXL for adults and age-based sizing for kids. The site includes filtering by category, search, product quick view, and a simple cart that persists in your browser.</p>
+  </section>
+</div>
+
+<!-- CATEGORIES + FILTERS -->
+<div class="container" id="products">
+  <div class="section-head">
+    <h2>Shop by Category</h2>
+    <div class="filters">
+      <div class="chips" role="tablist" aria-label="Category chips">
+        <div class="chip active" data-cat="all" onclick="filterCategory('all')">All</div>
+        <div class="chip" data-cat="men" onclick="filterCategory('men')">Men</div>
+        <div class="chip" data-cat="women" onclick="filterCategory('women')">Women</div>
+        <div class="chip" data-cat="kids" onclick="filterCategory('kids')">Kids</div>
+        <div class="chip" data-cat="ethnic" onclick="filterTag('ethnic')">Ethnic</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="grid" class="grid" aria-live="polite"></div>
+
+  <div id="empty" class="center" style="display:none;margin-top:22px;color:var(--muted)">No products found.</div>
+</div>
+
+<!-- CART PANEL -->
+<aside id="cartPanel" class="cart-panel" role="complementary" aria-label="Shopping cart">
+  <h3 style="margin:6px 0 12px 0">Your Cart</h3>
+  <div id="cartItems"></div>
+  <div id="cartEmpty" class="center text-muted" style="padding:18px">Your cart is empty.</div>
+  <div class="cart-footer" style="margin-top:12px">
+    <div>
+      <div class="small text-muted">Subtotal</div>
+      <div id="cart-total">₹0</div>
+    </div>
+    <div>
+      <button class="btn" onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+</aside>
+
+<!-- OVERLAY / MODALS -->
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div id="modal" class="modal" role="document"></div>
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top:36px;background:var(--sky);padding:26px 12px">
+  <div class="container" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="logo" style="height:48px;width:48px">SC</div>
+      <div>
+        <div style="font-weight:800;color:var(--deep-blue)">SkyCloth</div>
+        <div class="small text-muted">Clothing & Accessories</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="small text-muted">© 2025 SkyCloth</div>
+      <a class="small text-muted" href="#" onclick="openTerms()">Terms</a>
+      <a class="small text-muted" href="#" onclick="openPolicy()">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ===================== SAMPLE PRODUCT DATA ===================== */
+const PRODUCTS = [
+  {id:'m1', title:'Men Slim Fit Shirt', price:899, sizes:['S','M','L','XL'], rating:4.4, category:'men', tag:'casual', img:'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=0a7b9b4b5cc9b26bd29b4f2344e3f952'},
+  {id:'m2', title:'Men Denim Jacket', price:2199, sizes:['M','L','XL'], rating:4.6, category:'men', tag:'jacket', img:'https://images.unsplash.com/photo-1514996937319-344454492b37?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=3b0e8782ae95e89d0b3f6c6b1a4b5c5a'},
+  {id:'w1', title:'Women Floral Midi Dress', price:1299, sizes:['XS','S','M','L'], rating:4.7, category:'women', tag:'dress', img:'https://images.unsplash.com/photo-1520975917609-7f6c6b5d0b6f?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=618ef891f2b8f3f6a0ef42a8c0b5b4a2'},
+  {id:'w2', title:'Women Silk Saree', price:3499, sizes:['Free Size'], rating:4.9, category:'women', tag:'ethnic', img:'https://images.unsplash.com/photo-1530039543283-7ce0d7e38b6a?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=35e0b8a7a4a2d8855d3fa3e5c9f4f4c4'},
+  {id:'k1', title:'Kids Graphic Tee (5-7 yrs)', price:499, sizes:['2-4','5-7','8-10'], rating:4.2, category:'kids', tag:'tees', img:'https://images.unsplash.com/photo-1534187908738-3cbd6680b8fb?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=5c1c3fb0e3a3f3d6f8c4b3c0d6e5e2ea'},
+  {id:'k2', title:'Kids Denim Shorts', price:699, sizes:['2-4','5-7','8-10'], rating:4.1, category:'kids', tag:'shorts', img:'https://images.unsplash.com/photo-1542326237-94c9b7aee8aa?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=2f4b1d9d6d0e6d1ad9b3a2c4'},
+  {id:'m3', title:'Men Formal Trousers', price:1299, sizes:['M','L','XL','XXL'], rating:4.5, category:'men', tag:'formal', img:'https://images.unsplash.com/photo-1540574163026-643ea20ade25?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=9ba7d3b2ea3a1f1a12f3a4b5c6d7e8f9'},
+  {id:'w3', title:'Women Casual Top', price:799, sizes:['XS','S','M','L','XL'], rating:4.3, category:'women', tag:'casual', img:'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=64b8e6f7dac9b0b5c3e5b4a6'},
+  // add more items if desired...
+];
+
+/* ===================== STATE & UTILS ===================== */
+let state = {
+  products: [...PRODUCTS],
+  filter: {category:'all', tag:''},
+  query: '',
+  cart: JSON.parse(localStorage.getItem('skycart')||'[]'),
+  users: JSON.parse(localStorage.getItem('skyusers')||'[]'),
+  currentUser: JSON.parse(localStorage.getItem('skyauth')||'null'),
+};
+
+const formatPrice = n => `₹${Number(n).toLocaleString('en-IN')}`;
+
+/* ===================== RENDER PRODUCTS ===================== */
+const grid = document.getElementById('grid');
+const emptyEl = document.getElementById('empty');
+
+function renderProducts(){
+  const q = state.query.trim().toLowerCase();
+  let items = state.products.filter(p=>{
+    if(state.filter.category !== 'all' && p.category !== state.filter.category) return false;
+    if(state.filter.tag && p.tag !== state.filter.tag) return false;
+    if(q && !(p.title.toLowerCase().includes(q) || p.tag.toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  grid.innerHTML = '';
+  if(items.length === 0){
+    emptyEl.style.display = 'block';
+    return;
+  } else emptyEl.style.display = 'none';
+
+  items.forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div class="thumb" role="img" aria-label="${p.title}">
+        <img src="${p.img}" alt="${p.title}">
+      </div>
+      <div class="meta">
+        <div class="title">${escapeHtml(p.title)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="price">${formatPrice(p.price)}</div>
+          <div class="rating" title="${p.rating} stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .587l3.668 7.431L23.4 9.748 17.9 14.2l1.07 7.84L12 18.896 5.03 22.04 6.1 14.2 0.6 9.748l7.732-1.73L12 .587z"/></svg>
+            <span style="font-weight:700">${p.rating}</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <div class="small text-muted">Sizes</div>
+          <div class="small text-muted">${p.sizes.join(' • ')}</div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-sm outline" onclick="openQuick(${JSON.stringify(p).replace(/"/g,'&quot;')})">Quick View</button>
+          <button class="btn-sm add" onclick='addToCart("${p.id}")'>Add to Cart</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+/* ===================== ESCAPE HTML for injection safety ===================== */
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+/* ===================== FILTERS, SEARCH ===================== */
+function filterCategory(cat){
+  state.filter.category = cat;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.cat===cat));
+  renderProducts();
+  scrollToProducts();
+}
+function filterTag(tag){
+  state.filter.tag = tag;
+  renderProducts();
+}
+function searchProducts(q){
+  state.query = q;
+  renderProducts();
+}
+
+/* ===================== QUICK VIEW / MODAL ===================== */
+const overlay = document.getElementById('overlay');
+const modal = document.getElementById('modal');
+
+function openQuick(product){
+  // product may be stringified or object
+  let p = (typeof product === 'string') ? JSON.parse(product) : product;
+  showModal(`
+    <h3>${escapeHtml(p.title)}</h3>
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:1">
+        <img src="${p.img}" alt="${escapeHtml(p.title)}" style="width:100%;height:240px;object-fit:cover;border-radius:8px;margin-bottom:8px">
+        <div class="small text-muted">Category: ${p.category.toUpperCase()} • Tag: ${p.tag}</div>
+      </div>
+      <div style="width:220px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-weight:800;font-size:20px;color:var(--deep-blue)">${formatPrice(p.price)}</div>
+        <div style="font-size:14px" class="text-muted">Rating: ${p.rating} ★</div>
+        <label class="small">Choose size</label>
+        <select id="sizeSelect">
+          ${p.sizes.map(s=>`<option value="${s}">${s}</option>`).join('')}
+        </select>
+        <label class="small">Quantity</label>
+        <select id="qtySelect">
+          ${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join('')}
+        </select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" onclick='addToCart("${p.id}")'>Add to Cart</button>
+          <button class="ghost" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function showModal(html){
+  modal.innerHTML = html;
+  overlay.style.display = 'flex';
+  overlay.setAttribute('aria-hidden', 'false');
+}
+function closeModal(){
+  overlay.style.display = 'none';
+  modal.innerHTML = '';
+  overlay.setAttribute('aria-hidden', 'true');
+}
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+/* ===================== CART LOGIC ===================== */
+function saveCart(){
+  localStorage.setItem('skycart', JSON.stringify(state.cart));
+  updateCartCount();
+}
+
+function updateCartCount(){
+  const count = state.cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cart-count').textContent = count;
+}
+
+function addToCart(productId){
+  // default size = first size, qty = 1 (unless modal selects)
+  const p = PRODUCTS.find(x=>x.id===productId);
+  if(!p) return alert('Product not found');
+  let size = document.getElementById('sizeSelect') ? document.getElementById('sizeSelect').value : p.sizes[0];
+  let qty = document.getElementById('qtySelect') ? Number(document.getElementById('qtySelect').value) : 1;
+
+  // check if exists (same product + size)
+  const idx = state.cart.findIndex(i => i.id===productId && i.size===size);
+  if(idx > -1){
+    state.cart[idx].qty += qty;
+  } else {
+    state.cart.push({id:productId, title:p.title, price:p.price, img:p.img, size:size, qty:qty});
+  }
+  saveCart();
+  renderCart();
+  closeModal();
+  toggleCart(true);
+}
+
+/* RENDER CART PANEL */
+function renderCart(){
+  const itemsEl = document.getElementById('cartItems');
+  itemsEl.innerHTML = '';
+  if(state.cart.length === 0){
+    document.getElementById('cartEmpty').style.display = 'block';
+    document.getElementById('cartItems').style.display = 'none';
+  } else {
+    document.getElementById('cartEmpty').style.display = 'none';
+    document.getElementById('cartItems').style.display = 'block';
+    state.cart.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <img src="${c.img}" alt="${escapeHtml(c.title)}">
+        <div class="info">
+          <div style="font-weight:800">${escapeHtml(c.title)}</div>
+          <div class="small text-muted">Size: ${c.size} • ${formatPrice(c.price)} </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+            <button class="ghost" onclick="changeQty(${i}, -1)">-</button>
+            <div style="min-width:28px;text-align:center">${c.qty}</div>
+            <button class="ghost" onclick="changeQty(${i}, 1)">+</button>
+            <button class="ghost" style="margin-left:auto" onclick="removeCart(${i})">Remove</button>
+          </div>
+        </div>
+      `;
+      itemsEl.appendChild(div);
+    });
+  }
+  const total = state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cart-total').textContent = formatPrice(total);
+  updateCartCount();
+}
+
+function changeQty(index, delta){
+  state.cart[index].qty = Math.max(1, state.cart[index].qty + delta);
+  saveCart();
+  renderCart();
+}
+
+function removeCart(index){
+  state.cart.splice(index,1);
+  saveCart();
+  renderCart();
+}
+
+/* TOGGLE CART PANEL */
+function toggleCart(forceOpen){
+  const el = document.getElementById('cartPanel');
+  if(forceOpen === true) { el.style.display = 'block'; document.querySelector('header .btn[aria-haspopup]').setAttribute('aria-expanded','true'); return; }
+  if(el.style.display === 'block') { el.style.display = 'none'; document.querySelector('header .btn[aria-haspopup]').setAttribute('aria-expanded','false'); }
+  else { el.style.display = 'block'; document.querySelector('header .btn[aria-haspopup]').setAttribute('aria-expanded','true'); }
+}
+
+/* CHECKOUT (frontend only) */
+function checkout(){
+  if(state.cart.length === 0) return alert('Cart is empty');
+  if(!state.currentUser) {
+    if(confirm('You need to login to checkout. Open login?')) openLogin();
+    return;
+  }
+  const total = state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const name = state.currentUser.name || state.currentUser.email;
+  alert(`Thank you ${name}! Order placed for ${state.cart.length} items. Total: ${formatPrice(total)} (demo)`);
+  state.cart = [];
+  saveCart();
+  renderCart();
+  toggleCart(false);
+}
+
+/* ===================== AUTH (LOGIN / SIGNUP) ===================== */
+function openLogin(){
+  showModal(`
+    <h3>Login to SkyCloth</h3>
+    <div>
+      <label class="small">Email</label>
+      <input id="loginEmail" type="email" placeholder="you@example.com">
+      <label class="small" style="margin-top:8px">Password</label>
+      <input id="loginPass" type="password" placeholder="password">
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" onclick="doLogin()">Login</button>
+        <button class="ghost" onclick="openSignup()">Create account</button>
+      </div>
+      <div class="small text-muted" style="margin-top:8px">This demo stores accounts in your browser only.</div>
+    </div>
+  `);
+}
+
+function openSignup(){
+  showModal(`
+    <h3>Create your account</h3>
+    <div>
+      <label class="small">Full name</label>
+      <input id="signupName" type="text" placeholder="Your name">
+      <label class="small">Email</label>
+      <input id="signupEmail" type="email" placeholder="you@example.com">
+      <label class="small">Password</label>
+      <input id="signupPass" type="password" placeholder="choose a password">
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" onclick="doSignup()">Create</button>
+        <button class="ghost" onclick="openLogin()">Back to login</button>
+      </div>
+      <div class="small text-muted" style="margin-top:8px">Accounts stored in browser for demo purposes only.</div>
+    </div>
+  `);
+}
+
+function doSignup(){
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('signupPass').value;
+  if(!email || !pass || !name) return alert('Please fill all fields');
+  if(state.users.find(u=>u.email === email)) return alert('An account with this email already exists');
+  state.users.push({name, email, pass});
+  localStorage.setItem('skyusers', JSON.stringify(state.users));
+  alert('Account created. Please login.');
+  openLogin();
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const u = state.users.find(x=>x.email === email && x.pass === pass);
+  if(!u) return alert('Invalid credentials (demo)');
+  state.currentUser = {name: u.name, email: u.email};
+  localStorage.setItem('skyauth', JSON.stringify(state.currentUser));
+  closeModal();
+  alert('Logged in as ' + u.name);
+}
+
+/* AUTH UTIL */
+function logout(){
+  state.currentUser = null;
+  localStorage.removeItem('skyauth');
+  alert('Logged out');
+}
+
+/* ===================== OTHER UI HELPERS ===================== */
+function goHome(){ window.scrollTo({top:0,behavior:'smooth'}); }
+function scrollToProducts(){ document.getElementById('products').scrollIntoView({behavior:'smooth'}); }
+function openTerms(){ showModal('<h3>Terms & Conditions</h3><p class="text-muted">Demo terms — not real commerce terms.</p>'); }
+function openPolicy(){ showModal('<h3>Privacy Policy</h3><p class="text-muted">This demo stores data in your browser only.</p>'); }
+
+/* SIMPLE HERO ROTATION */
+(function heroRotate(){
+  const imgs = [
+    "https://images.unsplash.com/photo-1520975917609-7f6c6b5d0b6f?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=618ef891f2b8f3f6a0ef42a8c0b5b4a2",
+    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=0a7b9b4b5cc9b26bd29b4f2344e3f952",
+    "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=7bd4f9a1e8f2c2e1f3e4d2c7"
+  ];
+  let i=0;
+  const imgEl = document.querySelector('.hero-right img');
+  setInterval(()=>{ i=(i+1)%imgs.length; imgEl.src = imgs[i]; }, 4500);
+})();
+
+/* Initialize UI on load */
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderProducts();
+  renderCart();
+  updateCartCount();
+});
+
+/* small helper for building JSON attribute usage safely */
+function openQuickSafe(objStr){
+  try{ openQuick(JSON.parse(objStr)); }catch(e){ console.error(e); }
+}
+</script>
+
+</body>
+</html>
